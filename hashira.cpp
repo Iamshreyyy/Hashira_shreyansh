@@ -1,99 +1,11 @@
-// #include <bits/stdc++.h>
-// using namespace std;
-
-// // Convert "value" string from base to decimal (long long)
-// long long baseToDecimal(const string &value, int base) {
-//     long long result = 0;
-//     for (char c : value) {
-//         int digit;
-//         if (isdigit(c)) digit = c - '0';
-//         else if (isalpha(c)) digit = tolower(c) - 'a' + 10;
-//         else continue; // skip unexpected chars
-//         if (digit >= base) throw invalid_argument("Invalid digit for base");
-//         result = result * base + digit;
-//     }
-//     return result;
-// }
-
-// // Multiply polynomial by (x - root)
-// vector<long long> multiplyPoly(const vector<long long> &poly, long long root) {
-//     int n = poly.size();
-//     vector<long long> res(n + 1, 0);
-//     for (int i = 0; i < n; i++) {
-//         res[i] += poly[i];
-//         res[i + 1] -= poly[i] * root;
-//     }
-//     return res;
-// }
-
-// int main(int argc, char* argv[]) {
-//     ios::sync_with_stdio(false);
-//     cin.tie(nullptr);
-
-//     // Default file name
-//     string filename = "testcase.json";
-//     if (argc > 1) filename = argv[1];  // allow: .\prog.exe testcase2.json
-
-//     ifstream file(filename);
-//     if (!file.is_open()) {
-//         cerr << "Could not open " << filename << "\n";
-//         return 1;
-//     }
-
-//     string input((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-
-//     // Extract n and k safely
-//     int n = 0, k = 0;
-//     {
-//         regex nRegex("\"n\"\\s*:\\s*(\\d+)");
-//         regex kRegex("\"k\"\\s*:\\s*(\\d+)");
-//         smatch match;
-//         if (regex_search(input, match, nRegex)) n = stoi(match[1]);
-//         if (regex_search(input, match, kRegex)) k = stoi(match[1]);
-//     }
-
-//     vector<long long> roots;
-//     regex entryRegex("\"(\\d+)\"\\s*:\\s*\\{[^}]*\"base\"\\s*:\\s*\"?(\\d+)\"?[^}]*\"value\"\\s*:\\s*\"([^\"]+)\"");
-//     auto begin = sregex_iterator(input.begin(), input.end(), entryRegex);
-//     auto end = sregex_iterator();
-
-//     // Collect only first k roots
-//     vector<pair<int, pair<int,string>>> entries; // (id, (base, value))
-//     for (auto it = begin; it != end; ++it) {
-//         int id = stoi((*it)[1]);
-//         int base = stoi((*it)[2]);
-//         string value = (*it)[3];
-//         entries.push_back({id, {base, value}});
-//     }
-
-//     sort(entries.begin(), entries.end()); // ensure order "1", "2", ...
-//     for (int i = 0; i < k && i < (int)entries.size(); i++) {
-//         long long root = baseToDecimal(entries[i].second.second, entries[i].second.first);
-//         roots.push_back(root);
-//     }
-
-//     // Build polynomial
-//     vector<long long> poly = {1};
-//     for (long long r : roots) {
-//         poly = multiplyPoly(poly, r);
-//     }
-
-//     // Output coefficients
-//     cout << "Polynomial Coefficients:\n";
-//     for (size_t i = 0; i < poly.size(); i++) {
-//         cout << poly[i] << (i + 1 == poly.size() ? "\n" : " ");
-//     }
-
-//     return 0;
-// }
 
 #include <bits/stdc++.h>
 using namespace std;
 
-// ---------------- Signed BigInt ----------------
+
 struct BigInt {
-    bool neg;           // sign flag
-    string digits;      // absolute value, reversed
+    bool neg;           
+    string digits;      
 
     BigInt(long long num = 0) { *this = num; }
     BigInt(const string &s) { *this = s; }
@@ -136,7 +48,7 @@ struct BigInt {
         return s;
     }
 
-    // comparison of absolute values
+
     static bool absLess(const BigInt &a, const BigInt &b) {
         if (a.digits.size() != b.digits.size()) return a.digits.size() < b.digits.size();
         for (int i = a.digits.size() - 1; i >= 0; i--) {
@@ -145,7 +57,7 @@ struct BigInt {
         return false;
     }
 
-    // addition of absolute values
+
     static BigInt absAdd(const BigInt &a, const BigInt &b) {
         BigInt res;
         res.neg = false;
@@ -162,7 +74,7 @@ struct BigInt {
         return res;
     }
 
-    // subtraction of absolute values (assume |a| >= |b|)
+
     static BigInt absSub(const BigInt &a, const BigInt &b) {
         BigInt res;
         res.neg = false;
@@ -178,7 +90,7 @@ struct BigInt {
         return res;
     }
 
-    // operator +
+
     BigInt operator+(const BigInt &b) const {
         if (neg == b.neg) {
             BigInt res = absAdd(*this, b);
@@ -197,14 +109,14 @@ struct BigInt {
         }
     }
 
-    // operator -
+
     BigInt operator-(const BigInt &b) const {
         BigInt nb = b;
         nb.neg = !nb.neg;
         return *this + nb;
     }
 
-    // operator *
+
     BigInt operator*(const BigInt &b) const {
         BigInt res;
         res.neg = (neg != b.neg);
@@ -223,7 +135,7 @@ struct BigInt {
         return res;
     }
 
-    // multiply by int
+
     BigInt operator*(int b) const {
         BigInt res;
         res.neg = (neg && b != 0 && b < 0);
@@ -242,9 +154,9 @@ struct BigInt {
     }
 };
 
-// ---------------- Utility Functions ----------------
 
-// Convert "value" string from base to BigInt
+
+
 BigInt baseToDecimal(const string &value, int base) {
     BigInt result(0);
     for (char c : value) {
@@ -257,7 +169,7 @@ BigInt baseToDecimal(const string &value, int base) {
     return result;
 }
 
-// Multiply polynomial by (x - root)
+
 vector<BigInt> multiplyPoly(const vector<BigInt> &poly, const BigInt &root) {
     int n = poly.size();
     vector<BigInt> res(n + 1, BigInt(0));
@@ -268,7 +180,7 @@ vector<BigInt> multiplyPoly(const vector<BigInt> &poly, const BigInt &root) {
     return res;
 }
 
-// ---------------- Main ----------------
+
 int main(int argc, char* argv[]) {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
@@ -284,7 +196,7 @@ int main(int argc, char* argv[]) {
 
     string input((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
 
-    // extract n and k
+
     int n = 0, k = 0;
     {
         regex nRegex("\"n\"\\s*:\\s*(\\d+)");
